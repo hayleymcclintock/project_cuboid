@@ -6,7 +6,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 
-result_pub_ = rospy.Publisher('/evaluate_state/goal_img',Image, queue_size=1)
+result_pub_ = rospy.Publisher('/vision_processor/parsed_img',Image, queue_size=1)
 
 
 class VisionProcessorNode():
@@ -18,12 +18,14 @@ class VisionProcessorNode():
         self.bridge = CvBridge()
 
         r = rospy.Rate(30) # 30hz
+        self.Imagein = False
 
         while not rospy.is_shutdown():
             if self.Imagein == True:
                 self.image = self.cv_image
                 img_result_ = self.process_image(self.image)
-                result_pub_.publish(self.bridge.cv2_to_imgmsg(img_result, 'bgr8'))
+                result_pub_.publish(self.bridge.cv2_to_imgmsg(img_result_, 'bgr8'))
+                self.Imagein = False
             r.sleep()
 
         cv2.destroyAllWindows()
@@ -38,7 +40,7 @@ class VisionProcessorNode():
             rospy.logerr('[ros-video-recorder][VideoFrames] Converting Image Error. ' + str(e))
             return
 
-    def process_image(frame):
+    def process_image(self,frame):
         #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         v = hsv.copy()
@@ -83,7 +85,7 @@ if __name__ == "__main__":
 
     rospy.init_node('VisionProcessorNode')
 
-    try:
-        StateDetectionNode()
-    except:
-        rospy.logerr('Could not initialize VisionProcessorNode!')
+
+    VisionProcessorNode()
+    #except:
+    #    rospy.logerr('Could not initialize VisionProcessorNode!')
