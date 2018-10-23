@@ -5,8 +5,10 @@ import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
+import time
 
 result_pub_ = rospy.Publisher('/vision_processor/parsed_img',Image, queue_size=1)
+
 
 
 class VisionProcessorNode():
@@ -19,6 +21,7 @@ class VisionProcessorNode():
 
         r = rospy.Rate(30) # 30hz
         self.Imagein = False
+        self.total_count =0
 
         while not rospy.is_shutdown():
             if self.Imagein == True:
@@ -48,13 +51,14 @@ class VisionProcessorNode():
         v[:,:,1] = 0
 
         # Calculate wanted variables
-        result,dk = divide_image(v, 50,50,2) #channel 0 for hue, 1 for sat, and 2 for value
+        result, dk = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
+        self.total_count = self.total_count+1
         return result
 
 ##########################################
 #Helper functions that do not need to be a apart of a class class
 ##########################################
-def divide_image(img, nrow, ncol, channel):
+def divide_image(img, nrow, ncol, channel,total_count):
     row_pix = img.shape[0]
     col_pix = img.shape[1]
     row_size = int(row_pix/nrow)
@@ -70,10 +74,13 @@ def divide_image(img, nrow, ncol, channel):
              cv2.putText(new_img,str(int(mean_patch)),(center_of_patch[1],center_of_patch[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(255,255,255),1,cv2.LINE_AA)
              data.append([center_of_patch[0], center_of_patch[1],mean_patch])
 
-    #nupied = np.asarray(data)
-    #np.savetxt('for_matlab2.csv',nupied, delimiter =',')
-    #time.sleep(100)
-
+    if total_count <4:
+        nupied = np.asarray(data)
+        name = 'process' + str(total_count) + '.csv'
+        np.savetxt(str(name),nupied, delimiter =',')
+        print 'Just saved: ', name
+        time.sleep(10)
+    total_count = total_count+1
 
     return new_img, data
 
@@ -84,6 +91,7 @@ def divide_image(img, nrow, ncol, channel):
 if __name__ == "__main__":
 
     rospy.init_node('VisionProcessorNode')
+
 
 
     VisionProcessorNode()
