@@ -1,10 +1,9 @@
 #!/usr/bin/python
 
 import hardware_coms.communications_control as lib
-from std_msgs.msg import Empty
+from common_msgs_gl.srv import SendInt
 import rospy
-
-#Create a SendInt for this package!!!
+import IPython
 
 class HardwareComsNode():
 
@@ -24,14 +23,15 @@ class HardwareComsNode():
         rospy.spin()
 
 
-    def do_something(self, req):
+    def callback_do_something(self, req):
         #if req.data == RAISE_CRANE_RESET:
         #    self.communication.attach_object()
         #elif req.data == LOWER_CRANE_OBJECT_READY:
         #    self.communication.detach_object()
         #else:
         #    logerr("[ERR] Could not recognize reset command - 0 object grab, 1 object release")
-
+        print 'attempted callback'
+        a = req.data
         return []
 
 if __name__ == "__main__":
