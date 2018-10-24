@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="hardware_coms" name="HardwareComsNode" type="hardware_coms_node.py" output="screen">
+		<rosparam command="load" file="$(find hardware_coms)/param/coms_param.yaml"/>
+	</node>
+</launch>
