@@ -74,13 +74,13 @@ def divide_image(img, nrow, ncol, channel,total_count):
              cv2.putText(new_img,str(int(mean_patch)),(center_of_patch[1],center_of_patch[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(255,255,255),1,cv2.LINE_AA)
              data.append([center_of_patch[0], center_of_patch[1],mean_patch])
 
-    if total_count <4:
-        nupied = np.asarray(data)
-        name = 'process' + str(total_count) + '.csv'
-        np.savetxt(str(name),nupied, delimiter =',')
-        print 'Just saved: ', name
-        time.sleep(10)
-    total_count = total_count+1
+    #if total_count <4:
+    #    nupied = np.asarray(data)
+    #    name = 'process' + str(total_count) + '.csv'
+    #    np.savetxt(str(name),nupied, delimiter =',')
+    #    print 'Just saved: ', name
+    #    time.sleep(10)
+    #total_count = total_count+1
 
     return new_img, data
 

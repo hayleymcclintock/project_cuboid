@@ -1,31 +1,44 @@
 #! /usr/bin/python
 
+from std_srvs.srv import SetBool
+from common_msgs_gl.srv import SendInt
+
 import rospy
 import time
 from random import *
 import numpy as np
 import IPython
 
-#reset_obj_srv_ = rospy.ServiceProxy('/system_reset/reset_object', SendInt)
+perform_arduino_action = rospy.ServiceProxy("/hardware_coms/do_something", SendInt)
 
 #fake_keyboard_pub_ = rospy.Publisher('/keyboard_input', UInt32, queue_size=1)
 
 class AutoDataCollectorNode():
 
     def __init__(self):
+        self.initialized = False
 
 
         #rospy.Subscriber("/gripper/load", Float32MultiArray, self.gripperLoadCallback)
 
-        #enable_srv_ = rospy.Service("/auto_data_collector/enable_collection", SetBool, self.enable_data_save)
-
+        enable_srv_ = rospy.Service("/master_control/enable_collection", SetBool, self.enable_data_save)
 
         r = rospy.Rate(30) # 30hz
         while not rospy.is_shutdown():
+            if self.initialized == True:
+                continue
 
             r.sleep()
 
         rospy.spin()
+
+
+    def enable_data_save(self,req):
+        self.initialized = req.data
+        return [self.initialized, "Successfully changed enable bool"]
+
+
+
 
     def fake_keyboard_call_(self):
 
@@ -40,19 +53,6 @@ class AutoDataCollectorNode():
         fake_keyboard_pub_.publish(self.keyboardDict[self.selection_choices[self.current_selection]])
         self.time_taken = self.time_taken + 1
 
-
-
-    def enable_data_save(self,req):
-        self.enable = req.data
-
-        if self.enable == True:
-            initialize_hand_srv_(GET_GRIPPER_READY)
-            time.sleep(12)
-            self.resetObject()
-            self.initialized = True
-
-
-        return [self.enable, "Successfully changed enable bool"]
 
     def gripperLoadCallback (self, msg): #We will only keep track of when load history is exceeded
         history = msg.data
