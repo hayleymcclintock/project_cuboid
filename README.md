@@ -19,3 +19,6 @@ Standard ROS camera package for working with and publishing an image from a webc
 
 ### ROS Video Recorder 
 Video Recorder node used for capturing published video channels in ROS. Specific parameter files must be set, allowing for multiple  videos to be recorded at the same time.  
+
+### Master Control
+This package will be used as the controller for all processes and timing for our system. This node communicates with the others, in a top down approach, to coordinate actuation, take pictures given specific lighting condiitions, and create the final map. 
