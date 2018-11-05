@@ -2,6 +2,7 @@
 
 from std_srvs.srv import SetBool
 from common_msgs_gl.srv import SendInt
+from std_msgs.msg import Int32MultiArray
 
 import rospy
 import time
@@ -18,16 +19,41 @@ class AutoDataCollectorNode():
     def __init__(self):
         self.initialized = False
 
-
         #rospy.Subscriber("/gripper/load", Float32MultiArray, self.gripperLoadCallback)
-
         enable_srv_ = rospy.Service("/master_control/enable_collection", SetBool, self.enable_data_save)
+        data_sub_ = rospy.Subscriber('/vision_processor/processed_data', Int32MultiArray, self.callbackProcessData, queue_size=1)
 
-        r = rospy.Rate(30) # 30hz
+        self.hz = 30
+        self.counter = 0;
+        self.inflate_delay = 1;
+        self.first_image = 4;
+        self.second_image = 6;
+        self.third_image = 8;
+        self.fourth_image = 10;
+        self.reset_ = 15
+
+
+        r = rospy.Rate(self.hz) # 30hz
         while not rospy.is_shutdown():
             if self.initialized == True:
-                continue
+                if self.counter == self.inflate_delay*self.hz:
+                    perform_arduino_action(0)
+                elif self.counter == self.first_image*self.hz:
+                    perform_arduino_action(1)
+                    time.sleep(0.2)
+                elif self.counter == self.second_image*self.hz:
+                    perform_arduino_action(2)
+                    time.sleep(0.2)
+                elif self.counter == self.third_image*self.hz:
+                    perform_arduino_action(3)
+                    time.sleep(0.2)
+                elif self.counter == self.fourth_image*self.hz:
+                    perform_arduino_action(4)
+                    time.sleep(0.2)
 
+                self.counter = self.counter +1
+                if self.counter > self.hz * self.reset_: #reset after 10 seconds
+                    self.counter = 0
             r.sleep()
 
         rospy.spin()
@@ -37,6 +63,8 @@ class AutoDataCollectorNode():
         self.initialized = req.data
         return [self.initialized, "Successfully changed enable bool"]
 
+    def callbackProcessData(self, data):
+        self.currentImgData = data
 
 
 

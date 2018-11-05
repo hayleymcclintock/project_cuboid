@@ -3,11 +3,13 @@
 import rospy
 import cv2
 from sensor_msgs.msg import Image
+from std_msgs.msg import Int32MultiArray
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import time
 
 result_pub_ = rospy.Publisher('/vision_processor/parsed_img',Image, queue_size=1)
+data_pub_ = rospy.Publisher('/vision_processor/processed_data',Int32MultiArray, queue_size=1)
 
 
 
@@ -26,8 +28,9 @@ class VisionProcessorNode():
         while not rospy.is_shutdown():
             if self.Imagein == True:
                 self.image = self.cv_image
-                img_result_ = self.process_image(self.image)
-                result_pub_.publish(self.bridge.cv2_to_imgmsg(img_result_, 'bgr8'))
+                self.img_result_, self.data_ = self.process_image(self.image)
+                result_pub_.publish(self.bridge.cv2_to_imgmsg(self.img_result_, 'bgr8'))
+                data_pub_.publish(self.data_)
                 self.Imagein = False
             r.sleep()
 
@@ -51,9 +54,9 @@ class VisionProcessorNode():
         v[:,:,1] = 0
 
         # Calculate wanted variables
-        result, dk = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
+        result, data = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
         self.total_count = self.total_count+1
-        return result
+        return result,data
 
 ##########################################
 #Helper functions that do not need to be a apart of a class class
