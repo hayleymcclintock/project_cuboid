@@ -4,12 +4,13 @@ import rospy
 import cv2
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int32MultiArray
+from common_msgs_gl.msg import IntList
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import time
 
 result_pub_ = rospy.Publisher('/vision_processor/parsed_img',Image, queue_size=1)
-data_pub_ = rospy.Publisher('/vision_processor/processed_data',Int32MultiArray, queue_size=1)
+data_pub_ = rospy.Publisher('/vision_processor/processed_data',IntList, queue_size=1)
 
 
 
@@ -30,6 +31,7 @@ class VisionProcessorNode():
                 self.image = self.cv_image
                 self.img_result_, self.data_ = self.process_image(self.image)
                 result_pub_.publish(self.bridge.cv2_to_imgmsg(self.img_result_, 'bgr8'))
+
                 data_pub_.publish(self.data_)
                 self.Imagein = False
             r.sleep()
@@ -67,6 +69,7 @@ def divide_image(img, nrow, ncol, channel,total_count):
     row_size = int(row_pix/nrow)
     col_size = int(col_pix/ncol)
 
+    full_data = [] #This includes the x,y pixel locations
     data = []
     new_img = img.copy()
     for row in range(nrow):
@@ -75,7 +78,8 @@ def divide_image(img, nrow, ncol, channel,total_count):
              mean_patch = np.mean(patch)
              center_of_patch = [int((row*row_size+(row+1)*row_size)/2), int((col*col_size+(col+1)*col_size)/2)]
              cv2.putText(new_img,str(int(mean_patch)),(center_of_patch[1],center_of_patch[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(255,255,255),1,cv2.LINE_AA)
-             data.append([center_of_patch[0], center_of_patch[1],mean_patch])
+             full_data.append([center_of_patch[0], center_of_patch[1],mean_patch])
+             data.append(int(mean_patch))
 
     #if total_count <4:
     #    nupied = np.asarray(data)
