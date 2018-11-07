@@ -117,8 +117,10 @@ class MasterCollectorNode():
         self.initialized = req.data
         return [self.initialized, "Successfully changed enable bool"]
 
-    def callbackProcessData(self, data):
-        self.currentImgData = data
+    def callbackProcessData(self, msg):
+        self.currentImgData = msg.data
+        self.currentImgRow = msg.row
+        self.currentImgCol = msg.col
 
 
 
