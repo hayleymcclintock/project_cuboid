@@ -43,12 +43,17 @@ class MasterCollectorNode():
 
         SIDE = 1
 
+        self.complete_dataset = []
+
         #Create a csv file with a header, then write to it every time we get a new thing
+        self.file_name = dirnameData+"csvSave.csv"
 
         r = rospy.Rate(self.hz) # 30hz
         while not rospy.is_shutdown():
             if self.initialized == True:
-                image_name = dirnamePics +str(int(time.time()))+".png"
+                new_time = int(time.time())
+                image_name = dirnamePics +str(new_time)+".png"
+
                 if self.counter == self.inflate_delay*self.hz: #Inflate
                     perform_arduino_action(SIDE)
                     print "Inflating..."
@@ -62,7 +67,7 @@ class MasterCollectorNode():
                 elif self.counter == (self.first_image+1)*self.hz: #Take Edge 1
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 1..."
-                    #TODO: Save the Data
+                    self.saveCurrentData()
                     perform_arduino_action(SIDE*10 + 1 + 4)
 
                 #Light up and take picture for Edge 2
@@ -71,7 +76,7 @@ class MasterCollectorNode():
                 elif self.counter == (self.second_image+1)*self.hz: #Take Edge 2
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 2..."
-                    #TODO: Save the Data
+                    self.saveCurrentData()
                     perform_arduino_action(SIDE*10 + 2 + 4)
 
                 #Light up and take picture for Edge 3
@@ -80,7 +85,7 @@ class MasterCollectorNode():
                 elif self.counter == (self.third_image+1)*self.hz: #Take Edge 3
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 3..."
-                    #TODO: Save the Data
+                    self.saveCurrentData()
                     perform_arduino_action(SIDE*10 + 3 + 4)
 
                 #Light up and take picture for Edge 4
@@ -89,7 +94,7 @@ class MasterCollectorNode():
                 elif self.counter == (self.fourth_image+1)*self.hz: #Take Edge 4
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 4..."
-                    #TODO: Save the Data
+                    self.saveCurrentData()
                     perform_arduino_action(SIDE*10 + 4 + 4)
 
                 #Reset the counter back to zero and the side once we finish one side
@@ -105,12 +110,19 @@ class MasterCollectorNode():
         cv2.destroyAllWindows()
         rospy.spin()
 
+    def saveCurrentData(self):
+        for i in range(len(self.currentImgRow)):
+            self.complete_dataset.append([self.currentImgRow[i], self.currentImgCol[i], self.currentImgData[i]])
+        nupied = np.asarray(self.complete_dataset)
+        np.savetxt(str(self.file_name),nupied, delimiter =',')
+
+
     def callbackImage(self,data):
         try:
             self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
         except CvBridgeError as e:
-            rospy.logerr('[ros-video-recorder][VideoFrames] Converting Image Error. ' + str(e))
+            rospy.logerr('[master_control][VideoFrames] Converting Image Error. ' + str(e))
             return
 
     def enable_data_save(self,req):
