@@ -9,6 +9,7 @@ import time
 from random import *
 import numpy as np
 import IPython
+
 import os.path
 import os
 
@@ -56,7 +57,7 @@ class MasterCollectorNode():
 
                 if self.counter == self.inflate_delay*self.hz: #Inflate
                     perform_arduino_action(SIDE)
-                    print "Inflating..."
+                    print "Inflating (Rolling)..."
                 elif self.counter == (self.inflate_delay+2)*self.hz: #Deflate
                     perform_arduino_action(SIDE+4)
                     print "Deflating..."
@@ -98,10 +99,10 @@ class MasterCollectorNode():
                     perform_arduino_action(SIDE*10 + 4 + 4)
 
                 #Reset the counter back to zero and the side once we finish one side
-                if self.counter > self.hz * self.reset_: #reset after 10 seconds
+                if self.counter > self.hz * self.reset_: #reset after self.reset_ seconds
                     self.counter = 0
-                    SIDE = SIDE+1 #Say we are on the next side
-                    SIDE = (SIDE-1)%4+1 #Scale this between 1 and 4
+                    SIDE = SIDE+1 #Say we are on the next side, so add 1
+                    SIDE = ((SIDE-1)%4)+1 #Scale this between 1 and 4 (could be done in the prevous step but would be confusing)
 
                 #Continue (and always perform) counting
                 self.counter = self.counter +1
