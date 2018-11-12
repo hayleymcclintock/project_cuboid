@@ -9,6 +9,7 @@ add_message_files(
   FILES
   PointArray.msg
   PointArray3D.msg
+  IntList.msg
 )
 
 add_service_files(

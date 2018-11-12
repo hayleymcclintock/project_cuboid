@@ -4,12 +4,13 @@ import rospy
 import cv2
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int32MultiArray
+from common_msgs_gl.msg import IntList
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import time
 
 result_pub_ = rospy.Publisher('/vision_processor/parsed_img',Image, queue_size=1)
-data_pub_ = rospy.Publisher('/vision_processor/processed_data',Int32MultiArray, queue_size=1)
+data_pub_ = rospy.Publisher('/vision_processor/processed_data',IntList, queue_size=1)
 
 
 
@@ -28,9 +29,14 @@ class VisionProcessorNode():
         while not rospy.is_shutdown():
             if self.Imagein == True:
                 self.image = self.cv_image
-                self.img_result_, self.data_ = self.process_image(self.image)
+                self.img_result_, self.data_ , self.row_, self.col_= self.process_image(self.image)
                 result_pub_.publish(self.bridge.cv2_to_imgmsg(self.img_result_, 'bgr8'))
-                data_pub_.publish(self.data_)
+
+                msg = IntList()
+                msg.data =self.data_
+                msg.row = self.row_
+                msg.col = self.col_
+                data_pub_.publish(msg)
                 self.Imagein = False
             r.sleep()
 
@@ -54,9 +60,9 @@ class VisionProcessorNode():
         v[:,:,1] = 0
 
         # Calculate wanted variables
-        result, data = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
+        result, data, row, col = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
         self.total_count = self.total_count+1
-        return result,data
+        return result, data, row, col
 
 ##########################################
 #Helper functions that do not need to be a apart of a class class
@@ -67,7 +73,10 @@ def divide_image(img, nrow, ncol, channel,total_count):
     row_size = int(row_pix/nrow)
     col_size = int(col_pix/ncol)
 
+    full_data = [] #This includes the x,y pixel locations
     data = []
+    row_list = []
+    col_list = []
     new_img = img.copy()
     for row in range(nrow):
         for col in range(ncol):
@@ -75,7 +84,10 @@ def divide_image(img, nrow, ncol, channel,total_count):
              mean_patch = np.mean(patch)
              center_of_patch = [int((row*row_size+(row+1)*row_size)/2), int((col*col_size+(col+1)*col_size)/2)]
              cv2.putText(new_img,str(int(mean_patch)),(center_of_patch[1],center_of_patch[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(255,255,255),1,cv2.LINE_AA)
-             data.append([center_of_patch[0], center_of_patch[1],mean_patch])
+             full_data.append([center_of_patch[0], center_of_patch[1],int(mean_patch)])
+             data.append(int(mean_patch))
+             row_list.append(int(center_of_patch[0]))
+             col_list.append(int(center_of_patch[1]))
 
     #if total_count <4:
     #    nupied = np.asarray(data)
@@ -85,7 +97,7 @@ def divide_image(img, nrow, ncol, channel,total_count):
     #    time.sleep(10)
     #total_count = total_count+1
 
-    return new_img, data
+    return new_img, data, row_list, col_list
 
 
 ##########################################
