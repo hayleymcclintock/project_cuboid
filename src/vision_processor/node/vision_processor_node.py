@@ -60,7 +60,7 @@ class VisionProcessorNode():
         v[:,:,1] = 0
 
         # Calculate wanted variables
-        result, data, row, col = divide_image(v, 50,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
+        result, data, row, col = divide_image(v, 40,50,2, self.total_count) #channel 0 for hue, 1 for sat, and 2 for value
         self.total_count = self.total_count+1
         return result, data, row, col
 

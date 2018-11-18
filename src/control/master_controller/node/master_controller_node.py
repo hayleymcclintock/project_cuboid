@@ -37,10 +37,10 @@ class MasterCollectorNode():
         self.counter = 0;
         self.inflate_delay = 1; #This would be how many full hz cycles you want to wait
         self.first_image = 4;
-        self.second_image = 6;
-        self.third_image = 8;
-        self.fourth_image = 10;
-        self.reset_ = 15
+        self.second_image = 9;
+        self.third_image = 14;
+        self.fourth_image = 19;
+        self.reset_ = 25
 
         SIDE = 1
 
@@ -65,7 +65,7 @@ class MasterCollectorNode():
                 #Light up and take picture for Edge 1
                 elif self.counter == self.first_image*self.hz: #Light Up Edge 1
                     perform_arduino_action(SIDE*10 + 1)
-                elif self.counter == (self.first_image+1)*self.hz: #Take Edge 1
+                elif self.counter == (self.first_image+4)*self.hz: #Take Edge 1
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 1..."
                     self.saveCurrentData()
@@ -74,7 +74,7 @@ class MasterCollectorNode():
                 #Light up and take picture for Edge 2
                 elif self.counter == self.second_image*self.hz: #Light Up Edge 2
                     perform_arduino_action(SIDE*10 + 2)
-                elif self.counter == (self.second_image+1)*self.hz: #Take Edge 2
+                elif self.counter == (self.second_image+4)*self.hz: #Take Edge 2
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 2..."
                     self.saveCurrentData()
@@ -83,7 +83,7 @@ class MasterCollectorNode():
                 #Light up and take picture for Edge 3
                 elif self.counter == self.third_image*self.hz: #Light Up Edge 3
                     perform_arduino_action(SIDE*10 + 3)
-                elif self.counter == (self.third_image+1)*self.hz: #Take Edge 3
+                elif self.counter == (self.third_image+4)*self.hz: #Take Edge 3
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 3..."
                     self.saveCurrentData()
@@ -92,13 +92,13 @@ class MasterCollectorNode():
                 #Light up and take picture for Edge 4
                 elif self.counter == self.fourth_image*self.hz: #Light Up Edge 4
                     perform_arduino_action(SIDE*10 + 4)
-                elif self.counter == (self.fourth_image+1)*self.hz: #Take Edge 4
+                elif self.counter == (self.fourth_image+4)*self.hz: #Take Edge 4
                     cv2.imwrite(image_name,self.cv_image)
                     print "Took Picture 4..."
                     self.saveCurrentData()
                     perform_arduino_action(SIDE*10 + 4 + 4)
 
-                #Reset the counter back to zero and the side once we finish one side
+                #Reset the c    ounter back to zero and the side once we finish one side
                 if self.counter > self.hz * self.reset_: #reset after self.reset_ seconds
                     self.counter = 0
                     SIDE = SIDE+1 #Say we are on the next side, so add 1
