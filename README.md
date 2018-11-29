@@ -32,6 +32,7 @@ while True:
     s = takePicture()
     out = processData(s)
     save(out)
+  SIDE++
   SIDE = (SIDE-1)%4+1  #Sides are 1-4
 
 ```
@@ -46,7 +47,7 @@ A useful tool for debugging is by running:
 This will allow you to interract with the arduino and send individual commands to the cuboid (turn on/off lights, inflate/deflate bladders). Please follow the integer values specifies in `ROS_ws/src/hardware_coms/Arduino Code/Arduino Communication.xlsx`. For example, if you wanted to inflate the bladders for the third face,  
 ``rosservice call /hardware_coms/do_something "data=3"``  
 or if you would like to light up edge 3 of the second face,  
-``rosservice call /hardware_coms/do_something "data=23"``
+``rosservice call /hardware_coms/do_something "data=23"``  
 
 
 
