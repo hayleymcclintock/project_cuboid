@@ -8,7 +8,7 @@ import rospy, rospkg
 import time
 from random import *
 import numpy as np
-import IPython
+#import IPython
 
 import os.path
 import os
@@ -24,7 +24,7 @@ perform_arduino_action = rospy.ServiceProxy("/hardware_coms/do_something", SendI
 class MasterCollectorNode():
 
     def __init__(self):
-        self.initialized = True
+        self.initialized = False
 
         #rospy.Subscriber("/gripper/load", Float32MultiArray, self.gripperLoadCallback)
         enable_srv_ = rospy.Service("/master_control/enable_collection", SetBool, self.enable_data_save)
@@ -36,11 +36,11 @@ class MasterCollectorNode():
         self.hz = 30
         self.counter = 0;
         self.inflate_delay = 1; #This would be how many full hz cycles you want to wait
-        self.first_image = 4;
-        self.second_image = 9;
-        self.third_image = 14;
-        self.fourth_image = 19;
-        self.reset_ = 25
+        self.first_image = 10;
+        self.second_image = 15;
+        self.third_image = 20;
+        self.fourth_image = 25;
+        self.reset_ = 30
 
         SIDE = 1
 
@@ -58,7 +58,7 @@ class MasterCollectorNode():
                 if self.counter == self.inflate_delay*self.hz: #Inflate
                     perform_arduino_action(SIDE)
                     print "Inflating (Rolling)..."
-                elif self.counter == (self.inflate_delay+2)*self.hz: #Deflate
+                elif self.counter == (self.inflate_delay+7)*self.hz: #Deflate
                     perform_arduino_action(SIDE+4)
                     print "Deflating..."
 

@@ -3,7 +3,6 @@
 import hardware_coms.communications_control as lib
 from common_msgs_gl.srv import SendInt
 import rospy
-import IPython
 import struct
 
 class HardwareComsNode():
@@ -22,6 +21,7 @@ class HardwareComsNode():
 
     def callback_do_something(self, req):
         data_in = req.data
+        rospy.loginfo(data_in)
         if isinstance(data_in, (int, long)):
             self.communication.send_serial_msgs(struct.pack("B", data_in))
         return []
