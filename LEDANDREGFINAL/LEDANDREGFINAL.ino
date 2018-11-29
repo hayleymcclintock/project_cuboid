@@ -15,7 +15,7 @@
 // putting power supply at 5v 1.5 a should be more than sufficient!
 
 // How many leds in your strip?
-#define NUM_LEDS 60 // this will change once we string together the 4 strips and cut it... 
+#define NUM_LEDS 120 // this will change once we string together the 4 strips and cut it... 
 #define DATA_PIN 6
 #define CLOCK_PIN 7
 CRGB leds[NUM_LEDS]; // set up block of memory used for storing and manipulating LED data
@@ -26,9 +26,8 @@ CRGB leds[NUM_LEDS]; // set up block of memory used for storing and manipulating
 //
 //// P_REG CONFIGURATION  -------------------------------------------------------------------
 // System configuration variables
-const int NUM_ACTUATORS = 4; // **USER**
-// we might end up using 8 actuators?
-int pressureRegulatorAddresses[NUM_ACTUATORS] = {59,60,61,72}; // these are actuators 0, 1, 2 and 3 **USER**
+const int NUM_ACTUATORS = 8; // **USER**
+int pressureRegulatorAddresses[NUM_ACTUATORS] = {59,60,61,72, 73, 79, 80, 81}; // these are actuators 0, 1, 2 and 3 **USER**
 
 // Memory Addresses
 const int INDEX_SETPOINT_HIGH_BYTE = 16; // Default setpoint is atmospheric pressure (-0.147 [PSI])
@@ -59,7 +58,8 @@ const int halfBand = 3;
 float expConst = .9; // **USER** Decay (time) constant for the (optional) exponential filter. 0.9 is rather agressive. 0 is same as no filter.
 //---------------------------------------------------------------------------------------------
 
-
+const int delay_on = 3000;
+const int delay_off = 500;
 
 void setup() {
   // LED SETUP --------------------------------------------------------------------------------
@@ -82,12 +82,12 @@ void setup() {
   //    writeI2C(pressureRegulatorAddresses[actuator], INDEX_ONLY_SEND_PRESSURE, onlySendPressure); // Send "don't only send pressure" to the actuator
   //  }
   //-------------------------------------------------------------------------------------------
+
 }
 
 
 
 void loop() {
-
 
   int section_size = 5; // how many lights are strung around one face of the pin toy ?
 
@@ -97,38 +97,63 @@ void loop() {
     int incomingByte = Serial.read();
     Serial.println(incomingByte);
     //P_REG SEND COMAND SECTION---------------------------------------------------------------------
-
-    if (incomingByte == 1) {     //pressure reg 1 ON
+  //{59,60,61,72, 73, 79, 80, 81} are the numbers of the regs are 0 1 are face 1, 2 3 are face 2, 4 5 are face 3, 6 7 are face 4.
+  
+    if (incomingByte == 1) {     //pressure reg 0 and 1 ON for face 1 
       command = 2;
-      writeI2C(pressureRegulatorAddresses[0], INDEX_DESIRED_STATE, command); // Send command to the actuator // Only valid states are 0,1,2. 2 is inflate. 1 is hold. 0 is release
+      writeI2C(pressureRegulatorAddresses[0], INDEX_DESIRED_STATE, command);
+      delay(delay_on); 
+      writeI2C(pressureRegulatorAddresses[1], INDEX_DESIRED_STATE, command);
+      delay(2000);
+      writeI2C(pressureRegulatorAddresses[0], INDEX_DESIRED_STATE, 0); 
     }
-    else if (incomingByte == 5) { //pressure reg 1 OFF
+    else if (incomingByte == 5) { //pressure reg 0 and 1 off for face 1 
       command = 0;
       writeI2C(pressureRegulatorAddresses[0], INDEX_DESIRED_STATE, command);
-    }
-    else if (incomingByte == 2) { //pressure reg 2 ON
-      command = 2;
+      delay(delay_off); 
       writeI2C(pressureRegulatorAddresses[1], INDEX_DESIRED_STATE, command);
     }
-    else if (incomingByte == 6) { //pressure reg 2 OFF
-      command = 0;
-      writeI2C(pressureRegulatorAddresses[1], INDEX_DESIRED_STATE, command);
-    }
-    else if (incomingByte == 3) { //pressure reg 3 ON
+    else if (incomingByte == 2) { //pressure reg 2 and 3 ON for face 2 
       command = 2;
       writeI2C(pressureRegulatorAddresses[2], INDEX_DESIRED_STATE, command);
+      delay(2500); 
+      writeI2C(pressureRegulatorAddresses[3], INDEX_DESIRED_STATE, command);
+      delay(2000);
+      writeI2C(pressureRegulatorAddresses[2], INDEX_DESIRED_STATE, 0); 
     }
-    else if (incomingByte == 7) { //pressure reg 3 OFF
+    else if (incomingByte == 6) { //pressure reg 2 and 3 OFF for face 2
       command = 0;
       writeI2C(pressureRegulatorAddresses[2], INDEX_DESIRED_STATE, command);
-    }
-    else if (incomingByte == 4) { //pressure reg 4 ON
+      delay(delay_off); 
+      writeI2C(pressureRegulatorAddresses[3], INDEX_DESIRED_STATE, command);   
+      }
+    else if (incomingByte == 3) { //pressure reg 4 and 5 for face 3 ON
       command = 2;
-      writeI2C(pressureRegulatorAddresses[3], INDEX_DESIRED_STATE, command);
+      writeI2C(pressureRegulatorAddresses[4], INDEX_DESIRED_STATE, command);
+      delay(5000); 
+      writeI2C(pressureRegulatorAddresses[5], INDEX_DESIRED_STATE, command);
+      delay(3500);
+      writeI2C(pressureRegulatorAddresses[4], INDEX_DESIRED_STATE, 0);
     }
-    else if (incomingByte == 8) { //pressure reg 4 OFF
+    else if (incomingByte == 7) { //pressure reg 4 and 5 for face 3 OFF
       command = 0;
-      writeI2C(pressureRegulatorAddresses[3], INDEX_DESIRED_STATE, command);
+      writeI2C(pressureRegulatorAddresses[4], INDEX_DESIRED_STATE, command);
+      delay(delay_off); 
+      writeI2C(pressureRegulatorAddresses[5], INDEX_DESIRED_STATE, command);  
+    }
+    else if (incomingByte == 4) { //pressure reg 6 and 7 for face 4 ON
+      command = 2;
+      writeI2C(pressureRegulatorAddresses[6], INDEX_DESIRED_STATE, command);
+      delay(delay_on); 
+      writeI2C(pressureRegulatorAddresses[7], INDEX_DESIRED_STATE, command);
+      delay(2000);
+      writeI2C(pressureRegulatorAddresses[6], INDEX_DESIRED_STATE, 0); 
+    }
+    else if (incomingByte == 8) { //pressure reg 6 and 7 for face 4 OFF
+      command = 0;
+      writeI2C(pressureRegulatorAddresses[6], INDEX_DESIRED_STATE, command);
+      delay(delay_off); 
+      writeI2C(pressureRegulatorAddresses[7], INDEX_DESIRED_STATE, command);
     }
 //    ------------------------------------------------------------------------------------------ -
 
@@ -136,132 +161,145 @@ void loop() {
 
     //LED SEND COMAND SECTION -------------------------------------------------------------------
     else if (incomingByte == 11) { //LED side 1 section 1 ON
-      int section_size = 4; 
+      int section_size = 4;
       turn_on_led(section_size, 0);
-      turn_on_led(4, 33);
-      Serial.println("called function");
+      turn_on_led(4,33);  
       
     }
     else if (incomingByte == 15) { //LED side 1 section 1 oFF
       int section_size = 4; 
-      turn_off_led(section_size, 0);
+      turn_off_led(section_size, 0); 
       turn_off_led(4, 33);
-
     }
     else if (incomingByte == 12) { //LED side 1 section 2 ON
       int section_size = 4; 
       turn_on_led(section_size, section_size * 2 - section_size - 1);
-      turn_on_led(4, 37);
-
+      turn_on_led(4,37); 
     }
     else if (incomingByte == 16) { //LED side 1 section 2 oFF
-      int section_size = 4;
+      int section_size = 4; 
       turn_off_led(section_size, section_size * 2 - section_size - 1);
-      turn_off_led(4, 37);
-
+      turn_off_led(4,37); 
     }
     else if (incomingByte == 13) { //LED side 1 section 3 ON
       int section_size = 3; 
-      turn_on_led(section_size, 8);//section_size * 3 - section_size - 1);
-       turn_on_led(4, 41);//section_size * 3 - section_size - 1);
-
+      turn_on_led(section_size, 8);
+      turn_on_led(section_size, 8);
     }
     else if (incomingByte == 17) { //LED side 1 section 3 oFF
-      int section_size = 3;       
-      turn_off_led(section_size, 8);//section_size * 3 - section_size - 1);
-       turn_off_led(4, 41);//section_size * 3 - section_size - 1);
-
+      int section_size = 3; 
+      turn_off_led(section_size, 8);
+      turn_off_led(section_size, 8);
     }
     else if (incomingByte == 14) { //LED side 1 section 4 ON
-      int section_size = 4;
+      int section_size = 4; 
       turn_on_led(section_size, section_size * 4 - section_size - 1);
-       turn_on_led(3, 30);//section_size * 3 - section_size - 1);
-
+      turn_on_led(3,30); 
     }
     else if (incomingByte == 18) { //LED side 1 section 4 oFF
-      int section_size = 4;
+      int section_size = 4; 
       turn_off_led(section_size, section_size * 4 - section_size - 1);
-        turn_off_led(3, 30);//section_size * 3 - section_size - 1);
-
+      turn_off_led(3,30); 
     }
-
-
-
-
+///////////////////////////////////////////////////////////////////
     else if (incomingByte == 21) { //LED side 2 section 1 ON
       turn_on_led(section_size, section_size * 5 - section_size - 1);
+      turn_on_led(4, 52);
     }
     else if (incomingByte == 25) { //LED side 2 section 1 OFF
       turn_off_led(section_size, section_size * 5 - section_size - 1);
+        turn_off_led(4, 52);
+
     }
     else if (incomingByte == 22) { //LED side 2 section 2 ON
-      turn_on_led(section_size, section_size * 6 - section_size - 1);
+      turn_on_led(section_size-1, section_size * 6 - section_size - 2);
+      turn_on_led(4, 49);
     }
     else if (incomingByte == 26) { //LED side 2 section 2 OFF
-      turn_off_led(section_size, section_size * 6 - section_size - 1);
+      turn_off_led(section_size-1, section_size * 6 - section_size - 2);
+       turn_off_led(4, 49);
     }
     else if (incomingByte == 23) { //LED side 2 section 3 ON
-      turn_on_led(section_size, section_size * 7 - section_size - 1);
+      turn_on_led(3, section_size * 7 - section_size - 3);
+      turn_on_led(3, 49- 3); 
     }
     else if (incomingByte == 27) { //LED side 2 section 3 OFF
-      turn_off_led(section_size, section_size * 7 - section_size - 1);
+      turn_off_led(3, section_size * 7 - section_size - 3);
+      turn_off_led(3, 49 - 3); 
+
     }
     else if (incomingByte == 24) { //LED side 2 section 4 ON
-      turn_on_led(section_size, section_size * 8 - section_size - 1);
+      turn_on_led(section_size, section_size * 8 - section_size - 21);
+      turn_on_led(3,57); 
     }
     else if (incomingByte == 28) { //LED side 2 section 4 oFF
-      turn_off_led(section_size, section_size * 8 - section_size - 1);
+      turn_off_led(section_size, section_size * 8 - section_size - 21);
+      turn_off_led(3,57); 
     }
 
     else if (incomingByte == 31) { //LED side 3 section 1 ON
-      turn_on_led(section_size, section_size * 9 - section_size - 1);
+      turn_on_led(4, 30);
+      turn_on_led(4, 11); 
     }
     else if (incomingByte == 35) { //LED side 3 section 1 Off
-      turn_off_led(section_size, section_size * 9 - section_size - 1);
+      turn_off_led(4, 30);
+      turn_off_led(4, 11); 
     }
     else if (incomingByte == 32) { //LED side 3 section 2 ON
-      turn_on_led(section_size, section_size * 10 - section_size - 1);
+      turn_on_led(4,34);
+      turn_on_led(4, 0);
     }
     else if (incomingByte == 36) { //LED side 3 section 2 Off
-      turn_off_led(section_size, section_size * 10 - section_size - 1);
+      turn_off_led(4,34);
+      turn_off_led(4, 0);
     }
     else if (incomingByte == 33) { //LED side 3 section 3 ON
-      turn_on_led(section_size, section_size * 11 - section_size - 1);
+      turn_on_led(4,38);
+      turn_on_led(3, 4);
     }
     else if (incomingByte == 37) { //LED side 3 section 3 Off
-      turn_off_led(section_size, section_size * 11 - section_size - 1);
+      turn_off_led(4,38);
+      turn_off_led(3, 4);
     }
     else if (incomingByte == 34) { //LED side 3 section 4 ON
-      turn_on_led(section_size, section_size * 12 - section_size - 1);
+      turn_on_led(3, 42);
+      turn_on_led(3,8); 
     }
     else if (incomingByte == 38) { //LED side 3 section 4 Off
-      turn_off_led(section_size, section_size * 12 - section_size - 1);
+      turn_off_led(3, 42);
+      turn_off_led(3,8); 
     }
-
-
     else if (incomingByte == 41) { //LED side 4 section 1 ON
-      turn_on_led(section_size, section_size * 13 - section_size - 1);
+      turn_on_led(4,45);
+      turn_on_led(4,26); 
     }
     else if (incomingByte == 45) { //LED side 4 section 1 Off
-      turn_off_led(section_size, section_size * 13 - section_size - 1);
+      turn_off_led(4,45);
+      turn_off_led(4,26); 
     }
     else if (incomingByte == 42) { //LED side 4 section 2 ON
-      turn_on_led(section_size, section_size * 14 - section_size - 1);
+      turn_on_led(4,49);
+      turn_on_led(3,23);
     }
     else if (incomingByte == 46) { //LED side 4 section 2 Off
-      turn_off_led(section_size, section_size * 14 - section_size - 1);
+      turn_off_led(4,49);
+      turn_off_led(3,23);
     }
     else if (incomingByte == 43) { //LED side 4 section 3 ON
-      turn_on_led(section_size, section_size * 15 - section_size - 1);
+      turn_on_led(4,53);
+      turn_on_led(4, 19); 
     }
     else if (incomingByte == 47) { //LED side 4 section 3 Off
-      turn_off_led(section_size, section_size * 15 - section_size - 1);
+      turn_off_led(4,53);
+      turn_off_led(4, 19); 
     }
     else if (incomingByte == 44) { // LED side 4 section 4 ON
-      turn_on_led(section_size, section_size * 16 - section_size - 1);
+      turn_on_led(3, 57);
+      turn_on_led(4, 15); 
     }
     else if (incomingByte == 48) { // LED side 4 section 4 off
-      turn_off_led(section_size, section_size * 16 - section_size - 1);
+      turn_off_led(3, 57);
+      turn_off_led(4, 15); 
     }
     //----------------------------------------------------------------------
   }
@@ -274,7 +312,7 @@ void loop() {
 int turn_on_led(int inSectionSize, int firstIndSec) {
 
   for (int i = firstIndSec; i < inSectionSize + firstIndSec; i++) {
-    leds[i] = CHSV(0, 100, 200); //   moderate is (0, 100, 100) pretty bright white (HSV Color input) (0 , 10, 255) original white
+    leds[i] = CHSV(160, 255, 128);//CHSV(0, 10, 255); //pretty bright white (HSV Color input)
     FastLED.show();
   }
 }
