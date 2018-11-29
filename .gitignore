@@ -10,6 +10,9 @@ __pycache__/
 .Python
 build/
 devel/
+
+src/control/master_controller/data/*         # ignore all of the data files in git 
+
 develop-eggs/
 dist/
 downloads/
