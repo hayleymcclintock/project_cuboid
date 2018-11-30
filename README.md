@@ -56,6 +56,8 @@ or if you would like to light up edge 3 of the second face,
 
 ### Hayley McClintock  
 
+Hayley was responsible for the design and fabrication of the cuboid robot. This included the development of a custom pin art toy design that adhered to desired size and weight constraints and gave a reasonable field of view for the camera. Additionally, various methods of actuation were explored to yield the best rolling performance; this involved testing a variety of solenoids and pneumatic actuators before deciding on the guided balloon method as shown in the final design. Finally, Hayley aided in attaching the hardware to the cuboid robot and setting up and running the robot over the obstacle course.
+
 ### Andrew Morgan
 In this work, Andy was responsible for all ROS programming of the cuboid, of which is provided in the catkin workspace. This work has been sufficiently documented inside of the files so that others can properly understand and recreate this project. In addition to this duty, Andy worked on properly calibrating the camera and ensuring the vision extraction algorithm was sufficient for the shapes by shades approach. This included spec'ing a camera, calibrating the LEDs with different colors/sequences, and installing this on the cuboid.
 
