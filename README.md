@@ -32,7 +32,7 @@ while True:
     s = takePicture()
     out = processData(s)
     save(out)
-  SIDE++
+  SIDE=SIDE+1
   SIDE = (SIDE-1)%4+1  #Sides are 1-4
 
 ```
@@ -49,6 +49,15 @@ This will allow you to interract with the arduino and send individual commands t
 or if you would like to light up edge 3 of the second face,  
 ``rosservice call /hardware_coms/do_something "data=23"``  
 
+## Contributions  
+
+
+### Robert Baines  
+
+### Hayley McClintock  
+
+### Andrew Morgan
+In this work, Andy was responsible for all ROS programming of the cuboid, of which is provided in the catkin workspace. This work has been sufficiently documented inside of the files so that others can properly understand and recreate this project. In addition to this duty, Andy worked on properly calibrating the camera and ensuring the vision extraction algorithm was sufficient for the shapes by shades approach. This included spec'ing a camera, calibrating the LEDs with different colors/sequences, and installing this on the cuboid.
 
 
 
